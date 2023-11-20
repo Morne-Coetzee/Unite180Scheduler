@@ -1,0 +1,6 @@
+schedule
+python-decouple
+cryptography
+pyshorteners
+decouple
+python-telegram-bot
