@@ -5,6 +5,7 @@ import datetime
 import logging
 import asyncio
 import configparser
+import mysql.connector
 from math import ceil
 from decouple import *
 from cryptography.fernet import Fernet
@@ -26,18 +27,33 @@ logger.setLevel(logging.INFO)
 
 config = configparser.ConfigParser()
 
-def read_config():
+def read_db_config():
+    config = configparser.ConfigParser()
     try:
         config.read('config.ini')
-        dbsettings = {}
-        dbsettings["dbhost"] = config.get('Database', 'dbhost')
-        dbsettings["dbport"] = config.getint('Database', 'dbport')
-        dbsettings["dbuser"] = config.get('Database', 'dbuser')
-        dbsettings["dbpass"] = config.get('Database', 'dbpass')
-        dbsettings["dbname"] = config.get('Database', 'dbname')
-        return dbsettings
+        db_config = {
+            'host': config.get('Database', 'dbhost'),
+            'user': config.get('Database', 'dbuser'),
+            'password': config.get('Database', 'dbpass'),
+            'database': config.get('Database', 'dbname')
+        }
+        return db_config
     except Exception as e:
-        logger.error(e)
+        print(f"Error reading database config: {e}")
+        return None
+
+def connect_to_database():
+    db_config = read_db_config()
+    if db_config:
+        try:
+            connection = mysql.connector.connect(**db_config)
+            if connection.is_connected():
+                db_Info = connection.get_server_info()
+                print("Connected to MariaDB Server version ", db_Info)
+                return connection
+        except mysql.connector.Error as e:
+            print("Error connecting to MariaDB: ", e)
+    return None
 
 # Default Log Levels
 StreamHandler_Level = "20"

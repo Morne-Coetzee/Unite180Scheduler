@@ -4,3 +4,4 @@ cryptography
 pyshorteners
 decouple
 python-telegram-bot
+mysql-connector-python
